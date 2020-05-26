@@ -9,11 +9,18 @@ module StripeMock
         klass.add_handler 'get /v1/customers/(.*)/sources/(.*)', :retrieve_source
         klass.add_handler 'delete /v1/customers/(.*)/sources/(.*)', :delete_source
         klass.add_handler 'post /v1/customers/(.*)/sources/(.*)', :update_source
+        klass.add_handler 'post /v1/sources', :create_detached_source
+        klass.add_handler 'get /v1/sources/(.*)', :retrieve_detached_source
       end
 
       def create_source(route, method_url, params, headers)
         route =~ method_url
         add_source_to(:customer, $1, params, customers)
+      end
+
+      def create_detached_source(route, method_url, params, headers)
+        route =~ method_url
+        create_simple_source(params)
       end
 
       def retrieve_sources(route, method_url, params, headers)
@@ -26,6 +33,11 @@ module StripeMock
         customer = assert_existence :customer, $1, customers[$1]
 
         assert_existence :card, $2, get_card(customer, $2)
+      end
+
+      def retrieve_detached_source(route, method_url, params, headers)
+        route =~ method_url
+        retrieve_simple_source($1)
       end
 
       def delete_source(route, method_url, params, headers)

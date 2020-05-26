@@ -261,6 +261,7 @@ module StripeMock
         address_line1_check: nil,
         address_zip_check: nil,
         tokenization_method: nil,
+        three_d_secure: 'optional',
         metadata: {}
       }, params)
     end
@@ -739,6 +740,39 @@ module StripeMock
         :uncategorized_file => nil,
         :uncategorized_text => nil
       }
+    end
+
+    def self.mock_source(params={})
+      {
+        "id": "src_1GmNlx2eZvKYlo2C8coFjPc4",
+        "object": "source",
+        "amount": 10,
+        "client_secret": "src_client_secret_nFClsauaEMjWRXeSbys6Ekqj",
+        "created": 1590341885,
+        "currency": "usd",
+        "flow": "receiver",
+        "livemode": false,
+        "metadata": {},
+        "statement_descriptor": nil,
+        "status": "pending",
+        "type": "card",
+        "usage": "reusable",
+        "card": {
+          "exp_month": 4,
+          "exp_year": 2024,
+          "address_line1_check": "unchecked",
+          "address_zip_check": "unchecked",
+          "brand": "Visa",
+          "country": "US",
+          "cvc_check": "unchecked",
+          "fingerprint": "Xt5EWLLDS7FJjR1c",
+          "funding": "credit",
+          "last4": "4242",
+          "three_d_secure": "not_supported",
+          "tokenization_method": nil,
+          "dynamic_last4": nil
+        }
+      }.merge(params)
     end
 
     def self.mock_dispute_evidence_details

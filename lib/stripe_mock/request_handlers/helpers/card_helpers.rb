@@ -2,9 +2,9 @@ module StripeMock
   module RequestHandlers
     module Helpers
 
-      def get_card(object, card_id, class_name='Customer')
+      def get_card(object, card_id, class_name = 'Customer')
         cards = object[:cards] || object[:sources] || object[:external_accounts]
-        card = cards[:data].find{|cc| cc[:id] == card_id }
+        card = cards[:data].find { |cc| cc[:id] == card_id }
         if card.nil?
           if class_name == 'Recipient'
             msg = "#{class_name} #{object[:id]} does not have a card with ID #{card_id}"
@@ -22,7 +22,7 @@ module StripeMock
         sources = object[:sources]
 
         if replace_current && sources[:data]
-          sources[:data].delete_if {|source| source[:id] == object[:default_source]}
+          sources[:data].delete_if { |source| source[:id] == object[:default_source] }
           object[:default_source] = source[:id]
           sources[:data] = [source]
         else
@@ -70,13 +70,13 @@ module StripeMock
 
         card = { id: card_id, deleted: true }
         cards_or_sources = resource[:cards] || resource[:sources] || resource[:external_accounts]
-        cards_or_sources[:data].reject!{|cc|
+        cards_or_sources[:data].reject! do |cc|
           cc[:id] == card[:id]
-        }
+        end
 
         is_customer = resource.has_key?(:sources)
         new_default = cards_or_sources[:data].count > 0 ? cards_or_sources[:data].first[:id] : nil
-        resource[:default_card]   = new_default unless is_customer
+        resource[:default_card] = new_default unless is_customer
         resource[:sources][:total_count] = cards_or_sources[:data].count if is_customer
         resource[:default_source] = new_default if is_customer
         card
@@ -99,6 +99,22 @@ module StripeMock
           end
         source[:metadata].merge!(params[:metadata]) if params[:metadata]
         add_source_to_object(type, source, resource)
+      end
+
+      def create_simple_source(params)
+        type = params[:type]
+        source =
+          if type == 'card'
+            get_card_by_token(params[:token])
+          elsif type == 'bank_account'
+            get_bank_by_token(params[:token])
+          end
+        simple_source = Data.mock_source(type.to_sym => source)
+        @sources[simple_source['id']] = simple_source.merge(params)
+      end
+
+      def retrieve_simple_source(id)
+        @sources.delete(id)
       end
 
       def add_card_to(type, type_id, params, objects)
